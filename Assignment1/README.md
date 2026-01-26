@@ -36,7 +36,7 @@ I constructed a custom, student-specific inflation index using the following app
 ## 📈 Key Findings
 
 * **Students experience materially higher inflation than the national average.**
-  Since 2016, the Student SPI has diverged from the official CPI by approximately **[X]%**, indicating a substantially faster increase in student living costs.
+  Since 2016, the Student SPI has diverged from the official CPI by approximately **[2.2]%**, indicating a substantially faster increase in student living costs.
 
 * **Regional effects amplify inflation pressure.**
   Boston’s regional CPI consistently tracks above the national CPI, reflecting elevated housing and service costs in major urban centers.
