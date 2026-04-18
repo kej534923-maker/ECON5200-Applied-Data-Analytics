@@ -18,4 +18,43 @@ Key components include:
 
 ---
 
-## Project Structure
+## Features
+
+### 1. STL Decomposition
+- Applies log transformation for multiplicative data
+- Uses robust fitting to reduce outlier influence
+
+### 2. Stationarity Testing
+- Combines ADF and KPSS tests
+- Uses correct regression specification (trend vs no trend)
+- Provides a 2×2 decision framework
+
+### 3. Structural Break Detection
+- Implements PELT algorithm (ruptures)
+- Identifies regime changes in macroeconomic data
+
+### 4. Bootstrap Uncertainty
+- Moving block bootstrap preserves autocorrelation
+- Produces confidence intervals for trend estimates
+
+---
+
+## Example Outputs
+
+### STL Decomposition
+![STL](figures/stl_decomposition.png)
+
+### Structural Breaks
+![Breaks](figures/structural_breaks.png)
+
+### Bootstrap Confidence Bands
+![Bootstrap](figures/bootstrap_ci.png)
+
+---
+
+## Installation
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
