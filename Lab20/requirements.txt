@@ -1,0 +1,13 @@
+
+---
+# requirements.txt
+
+```txt
+pandas
+numpy
+matplotlib
+statsmodels
+fredapi
+ruptures
+plotly
+streamlit
