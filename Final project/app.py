@@ -1,6 +1,3 @@
-# Save this as app.py in your project repo
-
-streamlit_template = '''
 import streamlit as st
 import pandas as pd
 import numpy as np
