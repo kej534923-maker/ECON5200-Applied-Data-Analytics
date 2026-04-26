@@ -1,90 +1,58 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 
-st.set_page_config(page_title="Consulting Report Dashboard", layout="wide")
-st.title("Consulting Report: [Your Title]")
+st.set_page_config(page_title="IMF Crisis Dashboard", layout="wide")
+st.title("IMF Crisis Early Warning Dashboard")
 
-# --- Sidebar: What-If Controls ---
-st.sidebar.header("What-If Scenarios")
+st.sidebar.header("Threshold Control")
 
-treatment_multiplier = st.sidebar.slider(
-    "Treatment intensity multiplier",
-    min_value=0.5, max_value=3.0, value=1.0, step=0.1
+threshold = st.sidebar.slider(
+    "Crisis probability threshold",
+    min_value=0.01, max_value=0.99, value=0.88, step=0.01
 )
 
-# TODO: Add more sliders for your specific parameters
-# control_level = st.sidebar.selectbox("Control scenario", ["Low", "Medium", "High"])
+actual_crises = 14
 
-# --- Load your fitted model or pre-computed results ---
-# Option 1: Load a pickled model
-# import joblib
-# model = joblib.load("fitted_model.pkl")
+if threshold >= 0.88:
+    flagged, tp, fn = 5, 2, 12
+elif threshold >= 0.14:
+    flagged, tp, fn = 25, 10, 4
+else:
+    flagged, tp, fn = 48, 13, 1
 
-# Option 2: Use pre-computed coefficients
-baseline_ate = 0.0    # TODO: Replace with your causal estimate
-baseline_se = 0.0     # TODO: Replace with your standard error
+recall = tp / actual_crises
 
-# --- Compute What-If Estimate ---
-adjusted_ate = baseline_ate * treatment_multiplier
-adjusted_se = baseline_se * treatment_multiplier
-ci_lower = adjusted_ate - 1.96 * adjusted_se
-ci_upper = adjusted_ate + 1.96 * adjusted_se
+st.subheader("Model Results")
 
-# --- Display Results ---
 col1, col2, col3 = st.columns(3)
-col1.metric("Estimated Effect", f"{adjusted_ate:.3f}")
-col2.metric("95% CI Lower", f"{ci_lower:.3f}")
-col3.metric("95% CI Upper", f"{ci_upper:.3f}")
+col1.metric("Countries Flagged", flagged)
+col2.metric("Crises Caught", tp)
+col3.metric("Recall", f"{recall:.2%}")
 
 st.markdown(f"""
-> **What-if interpretation:** If treatment intensity is multiplied by
-> {treatment_multiplier:.1f}x, the estimated effect changes to
-> {adjusted_ate:.3f} (95% CI: [{ci_lower:.3f}, {ci_upper:.3f}]).
+At threshold **{threshold:.2f}**, the model flags **{flagged}** countries,
+detects **{tp} out of {actual_crises}** crises, and misses **{fn}** crises.
 """)
 
-# --- Uncertainty Visualization ---
-multipliers = np.arange(0.5, 3.1, 0.1)
-ates = baseline_ate * multipliers
-ses = baseline_se * multipliers
+st.subheader("Counterfactual Scenario")
+
+st.write(f"""
+If the threshold is set to **{threshold:.2f}**, the expected recall becomes **{recall:.2%}**.
+Lower thresholds increase detection but require more missions.
+""")
+
+taus = np.array([0.03, 0.14, 0.88])
+costs = np.array([50, 200, 600])
 
 fig = go.Figure()
-fig.add_trace(go.Scatter(
-    x=multipliers, y=ates + 1.96 * ses,
-    mode="lines", line=dict(width=0), showlegend=False
-))
-fig.add_trace(go.Scatter(
-    x=multipliers, y=ates - 1.96 * ses,
-    mode="lines", line=dict(width=0), fill="tonexty",
-    fillcolor="rgba(26,35,126,0.2)", name="95% CI"
-))
-fig.add_trace(go.Scatter(
-    x=multipliers, y=ates,
-    mode="lines", line=dict(color="#1a237e", width=2), name="Estimated Effect"
-))
-fig.add_vline(x=treatment_multiplier, line_dash="dash", line_color="red",
-              annotation_text=f"Current: {treatment_multiplier:.1f}x")
+fig.add_trace(go.Scatter(x=taus, y=costs, mode="lines+markers"))
+fig.add_vline(x=threshold)
+
 fig.update_layout(
-    title="What-If: Effect vs. Treatment Intensity",
-    xaxis_title="Treatment Intensity Multiplier",
-    yaxis_title="Estimated Causal Effect",
-    template="plotly_white"
+    title="Expected Cost vs Threshold",
+    xaxis_title="Threshold",
+    yaxis_title="Cost ($B)"
 )
+
 st.plotly_chart(fig, use_container_width=True)
-
-# --- Counterfactual Scenario ---
-st.subheader("Counterfactual: What if treatment intensity doubled?")
-counterfactual_ate = baseline_ate * 2.0
-counterfactual_ci = (counterfactual_ate - 1.96 * baseline_se * 2.0,
-                     counterfactual_ate + 1.96 * baseline_se * 2.0)
-st.write(f"If treatment intensity doubled, the estimated effect would be "
-         f"**{counterfactual_ate:.3f}** (95% CI: [{counterfactual_ci[0]:.3f}, {counterfactual_ci[1]:.3f}]).")
-'''
-
-# Uncomment to write the template to disk:
-# with open('app.py', 'w') as f:
-#     f.write(streamlit_template)
-# print('app.py written. Deploy to Streamlit Community Cloud.')
-
-print('Streamlit template ready. Uncomment the write block above to export.')
